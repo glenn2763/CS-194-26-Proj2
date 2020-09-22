@@ -107,6 +107,9 @@ def process_image(img):
 
     D_x = np.array([[-1, 1], [0, 0]], np.float32)
     D_y = np.array([[1, 0], [-1, 0]], np.float32)
+    gauss_kern = gaussian_kernel(2)
+
+    im_out_smoothed = signal.convolve2d(im_out, gauss_kern, mode="same", boundary="symm")
 
     im_out_x = signal.convolve2d(im_out, D_x, mode="same", boundary="symm")
     im_out_y = signal.convolve2d(im_out, D_y, mode="same", boundary="symm")
@@ -116,12 +119,19 @@ def process_image(img):
     im_out = im_out / np.max(np.absolute(im_out))
     im_out = (im_out + 1) / 2.
 
+    # 
+    for i in range(len(im_out)):
+        for j in range(len(im_out[0])):
+            if im_out[i][j] > 0.62:
+                im_out[i][j] = 1
+            else:
+                im_out[i][j] = 0
+
     # # save the image
     # fname = 'output/' + img[5:len(img) - 4] + '.jpg'
     # skio.imsave(fname, im_out)
 
     # # display the image
-    print(im_out.shape)
     skio.imshow(im_out)
     skio.show()
 
