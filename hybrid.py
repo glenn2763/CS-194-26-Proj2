@@ -5,18 +5,30 @@ import skimage.io as skio
 import scipy
 from scipy import signal
 from align_image_code import align_images
-from main import gaussian_kernel, normalize
+
+
+
+def gaussian_kernel(size=4, sigma=1.5):
+    # algorithm taken from https://subsurfwiki.org/wiki/Gaussian_filter
+    size = size // 2
+    x, y = np.mgrid[-size:size+1, -size:size+1]
+    normal = 1 / (2.0 * np.pi * sigma**2)
+    g =  np.exp(-((x**2 + y**2) / (2.0*sigma**2))) * normal
+    return g
+
+def normalize(img):
+    return (img - np.amin(img)) / (np.amax(img) - np.amin(img))
 
 # First load images
 
 # high sf
-im1 = plt.imread('data/nutmeg.jpg')/255.
+im1 = plt.imread('data/DerekPicture.jpg')/255.
 
 # low sf
-im2 = plt.imread('data/DerekPicture.jpg')/255
+im2 = plt.imread('data/nutmeg.jpg')/255
 
 # Next align images (this code is provided, but may be improved)
-# im1_aligned, im2_aligned = align_images(im2, im1)
+im1_aligned, im2_aligned = align_images(im2, im1)
 
 ## You will provide the code below. Sigma1 and sigma2 are arbitrary 
 ## cutoff values for the high and low frequencies
@@ -67,7 +79,9 @@ def hybrid_image(im1, im2, sigma1, sigma2):
 
 sigma1 = 50
 sigma2 = 50
-# hybrid = hybrid_image(im1_aligned, im2_aligned, sigma1, sigma2)
+hybrid = hybrid_image(im1_aligned, im2_aligned, sigma1, sigma2)
+skio.imshow(hybrid)
+skio.show()
 
 ## Compute and display Gaussian and Laplacian Pyramids
 ## You also need to supply this function
@@ -98,18 +112,6 @@ def pyramids(img, levels):
 tree_test = plt.imread('docs/images/einstein_tree.jpg')/255.
 
 im_out_gauss, im_out_laplace = pyramids(tree_test[:,:,0], 4)
-
-
-
-skio.imsave('docs/images/tree_gauss1.jpg', im_out_gauss[:,:,0])
-skio.imsave('docs/images/tree_gauss2.jpg', im_out_gauss[:,:,1])
-skio.imsave('docs/images/tree_gauss3.jpg', im_out_gauss[:,:,2])
-skio.imsave('docs/images/tree_gauss4.jpg', im_out_gauss[:,:,3])
-
-skio.imsave('docs/images/tree_laplace1.jpg', im_out_laplace[:,:,0])
-skio.imsave('docs/images/tree_laplace2.jpg', im_out_laplace[:,:,1])
-skio.imsave('docs/images/tree_laplace3.jpg', im_out_laplace[:,:,2])
-skio.imsave('docs/images/tree_laplace4.jpg', im_out_laplace[:,:,3])
 
 
 

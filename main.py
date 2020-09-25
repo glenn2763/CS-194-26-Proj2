@@ -30,8 +30,6 @@ def sharpen(img, alpha=2.5):
 
     # convert to double (might want to do this later on to save memory)    
     im = sk.img_as_float(im)
-
-    im_blur = blur('data/mandelbrot.jpg')
     
     # build an output image with same dimensions as input
     im_out = np.ndarray((len(im), len(im[0]), len(im[0][0])))
@@ -45,9 +43,10 @@ def sharpen(img, alpha=2.5):
         sharp = signal.convolve2d(current_channel, sharp_kernel, mode='same', boundary='symm')
         im_out[:,:,i] = normalize(sharp)
 
-    skio.imsave('docs/images/sharpen_mandel.jpg', normalize(im - im_blur))
     # fname = 'output/exsharp_' + img[7:len(img) - 4] + '.jpg'
     # skio.imsave(fname, im_out)
+    skio.imshow(normalize(im + im_out))
+    skio.show()
     return im_out
 
 def blur(img, sigma=1.5):
@@ -115,29 +114,23 @@ def get_edges(img):
 
 
     # # save the image
-    fname = 'docs/images/testx.jpg'
-    skio.imsave(fname, im_out_x)
-    fname = 'docs/images/testy.jpg'
-    skio.imsave(fname, im_out_y)
+    # fname = 'docs/images/testx.jpg'
+    # skio.imsave(fname, im_out_x)
+    # fname = 'docs/images/testy.jpg'
+    # skio.imsave(fname, im_out_y)
 
     # # display the image
-    # skio.imshow(normalize(im_out_x))
-    # skio.show()
+    skio.imshow(normalize(im_out))
+    skio.show()
 
 
 # name of the input file
-# imname = 'cameraman.png'
+imname = 'cameraman.png'
 # imname = 'facade.jpg'
 # imname = 'taj.jpg'
-imname = 'mandelbrot.jpg'
+# imname = 'mandelbrot.jpg'
 # imname = 'nutmeg.jpg'
 
-# get_edges('data/' + imname)
-sharpen('data/' + imname)
-
-# skio.imshow('data/' + imname)
-# skio.show()
-# skio.imshow(blur('data/' + imname, 10))
-# skio.show()
-# skio.imshow(sharpen('output/exblur_taj.jpg'))
-# skio.show()
+# function to run (choose one)
+get_edges('data/' + imname)
+# sharpen('data/' + imname)

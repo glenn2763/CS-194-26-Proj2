@@ -4,7 +4,18 @@ import skimage.io as skio
 import scipy
 import matplotlib.pyplot as plt
 from scipy import signal
-from main import gaussian_kernel, normalize
+
+def gaussian_kernel(size=4, sigma=1.5):
+    # algorithm taken from https://subsurfwiki.org/wiki/Gaussian_filter
+    size = size // 2
+    x, y = np.mgrid[-size:size+1, -size:size+1]
+    normal = 1 / (2.0 * np.pi * sigma**2)
+    g =  np.exp(-((x**2 + y**2) / (2.0*sigma**2))) * normal
+    return g
+
+
+def normalize(img):
+    return (img - np.amin(img)) / (np.amax(img) - np.amin(img))
 
 im1 = skio.imread('data/apple.jpeg')/255.
 im2 = skio.imread('data/orange.jpeg')/255.
@@ -62,14 +73,13 @@ def blend(im1, im2, levels):
     for i in range(levels):
         output_image = output_image + blended_levels[:,:,i]
     
-    skio.imsave('docs/images/blended_level1.jpg', blended_levels[:,:,0])
-    skio.imsave('docs/images/blended_level2.jpg', blended_levels[:,:,2])
-    skio.imsave('docs/images/blended_level3.jpg', blended_levels[:,:,3])
     return normalize(output_image)
 
 apple = im1[:,:,0]
 orange = im2[:,:,0]
 blended = blend(apple, orange, 4)
+skio.imshow(blended)
+skio.show()
 
 
 
