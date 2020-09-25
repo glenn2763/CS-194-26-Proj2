@@ -4,13 +4,11 @@ import numpy as np
 import skimage as sk
 import skimage.io as skio
 import scipy
-from skimage import feature
-from skimage.filters import sobel
+import matplotlib.pyplot as plt
 from scipy import signal
-from scipy import ndimage
 
 
-def gaussian_kernel(size=4, sigma=1):
+def gaussian_kernel(size=4, sigma=1.5):
     # algorithm taken from https://subsurfwiki.org/wiki/Gaussian_filter
     size = size // 2
     x, y = np.mgrid[-size:size+1, -size:size+1]
@@ -18,75 +16,67 @@ def gaussian_kernel(size=4, sigma=1):
     g =  np.exp(-((x**2 + y**2) / (2.0*sigma**2))) * normal
     return g
 
-def sobel_filters(img):
-    # algorithm taken from University of Auckland 
-    # https://www.cs.auckland.ac.nz/compsci373s1c/PatricesLectures/Edge%20detection-Sobel_2up.pdf
-    horizontal = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], np.float32)
-    vertical = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], np.float32)
+# kernel definitions
+# gauss_kern = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]], np.float32) / 16.
+gauss_kern = gaussian_kernel(6)
+
+unit_impulse = signal.unit_impulse((7, 7), 'mid')
+D_x = np.array([[-1, 1], [0, 0]], np.float32)
+D_y = np.array([[1, 0], [-1, 0]], np.float32)
+
+def sharpen(img, alpha=2.5):
+    # read in the image
+    im = skio.imread(img)
+
+    # convert to double (might want to do this later on to save memory)    
+    im = sk.img_as_float(im)
+
+    im_blur = blur('data/mandelbrot.jpg')
     
-    img_hor = ndimage.convolve(img, horizontal)
-    img_ver = ndimage.convolve(img, vertical)
+    # build an output image with same dimensions as input
+    im_out = np.ndarray((len(im), len(im[0]), len(im[0][0])))
+
+    # calculate sharpening kernel based on alpha
+    sharp_kernel = (1 + alpha) * unit_impulse - alpha * gauss_kern
+
+    # apply sharpening kernel to each channel and then add sharpened channel to output image
+    for i in range(3):
+        current_channel = im[:,:,i]
+        sharp = signal.convolve2d(current_channel, sharp_kernel, mode='same', boundary='symm')
+        im_out[:,:,i] = normalize(sharp)
+
+    skio.imsave('docs/images/sharpen_mandel.jpg', normalize(im - im_blur))
+    # fname = 'output/exsharp_' + img[7:len(img) - 4] + '.jpg'
+    # skio.imsave(fname, im_out)
+    return im_out
+
+def blur(img, sigma=1.5):
+    # read in the image
+    im = skio.imread(img)
+
+    # convert to double (might want to do this later on to save memory)    
+    im = sk.img_as_float(im)
+
+    # build an output image with same dimensions as input
+    im_out = np.ndarray((len(im), len(im[0]), len(im[0][0])))
+
+    # build a gaussian kernal from input paramaters
+    gauss_kern = gaussian_kernel(6, sigma)
+
+    for i in range(3):
+        current_channel = im[:,:,i]
+        im_out[:,:,i] = signal.convolve2d(current_channel, gauss_kern, mode='same', boundary='symm')
     
-    G = np.hypot(img_hor, img_ver)
-    G = G / np.amax(G) * 255
-    theta = np.arctan2(img_ver, img_hor)
-    
-    return (G, theta)
+    # fname = 'output/exblur_' + img[5:len(img) - 4] + '.jpg'
+    # skio.imsave(fname, im_out)
+
+    return normalize(im_out)
+
+def normalize(img):
+    return (img - np.amin(img)) / (np.amax(img) - np.amin(img))
+
 
 def get_edges(img):
-    smoothed = convolve(img, gaussian_kernel())
-    sobel_filtered, _ = sobel_filters(smoothed)
-    return sobel_filtered / np.amax(sobel_filtered)
-
-def displace_image(img, displacement):
-    rolled_x = np.roll(img, displacement[0], axis=0)
-    return np.roll(rolled_x, displacement[1], axis=1)
-
-# align the images
-# functions that might be useful for aligning the images include:
-# np.roll, np.sum, sk.transform.rescale (for multiscale)
-
-def align(image1, image2, displacement_range):
-    # Take in two images and allign the first image onto the second
-
-    # edge2 = sobel(image2) # Sobel filtering from skimage package
-    # edge1 = sobel(image1)
-
-    edge2 = get_edges(image2) # personal implementation of sobel filtering
-    edge1 = get_edges(image1)
-
-    # edge2 = image2 # using raw images to discern alignment
-    # edge1 = image1
-
-    lowest_diff = float('inf')
-    for i in range(-displacement_range, displacement_range + 1):
-        shifted_x = np.roll(edge1, i, axis=0)
-        for j in range(-displacement_range, displacement_range + 1):
-            shifted_xy = np.roll(shifted_x, j, axis=1)
-            difference = shifted_xy - edge2
-            total = sum(sum(difference * difference))
-            if total < lowest_diff:
-                best_i = i
-                best_j = j
-                lowest_diff = total
-    displacement = np.array([best_i, best_j])
-    return displacement
-
-def pyramid_align(image1, image2, depth, scale_factor=0.5):
-    if image1[0].size <= 500 or depth == 6:
-        return align(image1, image2, 15)
-    else:
-        small1 = sk.transform.rescale(image1, scale_factor)
-        small2 = sk.transform.rescale(image2, scale_factor)
-        upwards_displacement = pyramid_align(small1, small2, depth + 1)
-        upwards_displacement = upwards_displacement / scale_factor
-        int_displacement = upwards_displacement.astype(int)
-        close_image1 = displace_image(image1, int_displacement)
-        displacement_range = 1 / scale_factor
-        fine_tune = align(close_image1, image2, int(displacement_range))
-        return int_displacement + fine_tune
-
-def process_image(img):
     # read in the image
     im = skio.imread(img)
 
@@ -94,48 +84,60 @@ def process_image(img):
     im = sk.img_as_float(im)
 
     # just grab the R channel from the image
-    im_out = np.ndarray((len(im), len(im[0])))
-    for i in range(len(im)):
-        for j in range(len(im[0])):
-            im_out[i][j] = im[i][j][0]
+    im_out = im[:,:,0]
 
-    # D_x = np.array([-1, 1], np.float32)
 
-     
-    # for i in range(len(im)):
-    #     im_out[i] = ndimage.convolve1d(im_out[i], D_x) 
+    # gaussian blurring
+    im_out = signal.convolve2d(im_out, gauss_kern, mode='same', boundary='symm')
+    # im_out = signal.convolve2d(im_out, D_x, mode="same", boundary="symm")
+    # im_out = signal.convolve2d(im_out, D_y, mode="same", boundary="symm")
 
-    D_x = np.array([[-1, 1], [0, 0]], np.float32)
-    D_y = np.array([[1, 0], [-1, 0]], np.float32)
-    gauss_kern = gaussian_kernel(2)
-
-    im_out_smoothed = signal.convolve2d(im_out, gauss_kern, mode="same", boundary="symm")
-
+    # Dx and Dy Kernel application
     im_out_x = signal.convolve2d(im_out, D_x, mode="same", boundary="symm")
     im_out_y = signal.convolve2d(im_out, D_y, mode="same", boundary="symm")
-
     im_out = np.sqrt(im_out_x * im_out_x + im_out_y * im_out_y)
-
     im_out = im_out / np.max(np.absolute(im_out))
-    im_out = (im_out + 1) / 2.
 
-    # 
+    # combine convolution kernels
+    # convx = signal.convolve2d(gauss_kern, D_x)
+    # convtotal = signal.convolve2d(convx, D_y)
+    # im_out = signal.convolve2d(im_out, convtotal)
+    # im_out = im_out / np.max(np.absolute(im_out))
+    # im_out = (im_out + 1) / 2.
+
+    # make black and white at threshold
     for i in range(len(im_out)):
         for j in range(len(im_out[0])):
-            if im_out[i][j] > 0.62:
+            if im_out[i][j] > 0.3:
                 im_out[i][j] = 1
             else:
                 im_out[i][j] = 0
 
+
     # # save the image
-    # fname = 'output/' + img[5:len(img) - 4] + '.jpg'
-    # skio.imsave(fname, im_out)
+    fname = 'docs/images/testx.jpg'
+    skio.imsave(fname, im_out_x)
+    fname = 'docs/images/testy.jpg'
+    skio.imsave(fname, im_out_y)
 
     # # display the image
-    skio.imshow(im_out)
-    skio.show()
+    # skio.imshow(normalize(im_out_x))
+    # skio.show()
+
 
 # name of the input file
-imname = 'cameraman.png'
+# imname = 'cameraman.png'
+# imname = 'facade.jpg'
+# imname = 'taj.jpg'
+imname = 'mandelbrot.jpg'
+# imname = 'nutmeg.jpg'
 
-process_image('data/' + imname)
+# get_edges('data/' + imname)
+sharpen('data/' + imname)
+
+# skio.imshow('data/' + imname)
+# skio.show()
+# skio.imshow(blur('data/' + imname, 10))
+# skio.show()
+# skio.imshow(sharpen('output/exblur_taj.jpg'))
+# skio.show()

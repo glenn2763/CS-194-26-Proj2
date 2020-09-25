@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Fun with Filters and Frequencies!</title>
+  <meta name="CS 194-26 Project 2" content="">
+  <meta name="Glenn Wysen" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+      <div style="margin-top: 5%">
+        <h2 style="text-align: center;">Fun with Filters and Frequencies!</h2>
+        <h3 style="text-align: center;">CS 194-26 Project 2 Fall 2020</h3>
+        <h4 style="text-align: center;">Glenn Wysen</h4>
+      </div>
+    </div>
+    <div class="row">
+      <img class="u-full-width" src="images/lincoln.jpg" alt="lincoln">
+      <figcaption style="text-align: center"><b>Fig.1</b> - A Dali painting of Abe Lincoln and and a woman that changes 
+      based on frequency.</figcaption>
+    </div>
+
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Gradient Magnitude Image</h4>
+        <p>
+          The gradient magnitude image is calculated by running a horizontal edge gradient filter and a vertical edge gradient 
+          filter over the image and then combining the results. First, a Gaussian blur is applied across the original image 
+          to reduce gradient detection of noise in the image. Next, the horizontal and vertical gradient magnitude images 
+          are calculated by convolving a simple difference filter over the blurred image. Finally, the two gradient images 
+          are added together, normalized, and binarized to 0 or 1 based on an arbitrary threshold (I used 0.3).
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <img class="u-full-width" src="images/cameraman.png" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.2</b> - Original cameraman image.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/cameraman_x.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.3</b> - Horizontal edges detected.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/cameraman_y.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.4</b> - Vertical edges detected.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/cameraman.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.5</b> - Combined horizontal and vertical images and rescaled to black 
+        and white.</figcaption>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Derivative of Gaussian (DoG) Filter</h4>
+        <p>
+          By adding a Gaussian blur, the horizontal and vertical derivative filters became less affected by random noise in the 
+          image. This meant that the filtered images became much smoother. When I convolved the D_x and D_y filters with the 
+          Gaussian blur and then convolved the resulting filter with the original image I got the same result as doing all 
+          three separately.
+        </p>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Image Straightening</h4>
+        <p>
+          Image straightening was implemented by convolving the image with the horizontal and vertical derivative filters 
+          and then calculating the angle of the gradient at each point. After this, the image was rotated through a -20 to +20 
+          degree range from vertical. In each step the number of points with a gradient within 5 degrees of horizontal and 
+          vertical were calculated and the rotation with the highest number of these points was selected as the straightened 
+          image.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="six columns">
+        <img class="u-full-width" src="images/facade.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.6</b> - Original facade image.</figcaption>
+        <img class="u-full-width" src="images/original_facade_hist.png" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.7</b> - Original facade histogram.</figcaption>
+        <img class="u-full-width" src="images/skyline.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.10</b> - Original skyline image.</figcaption>
+        <img class="u-full-width" src="images/original_skyline_hist.png" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.11</b> - Original skyline histogram.</figcaption>
+        <img class="u-full-width" src="images/tilt.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.14</b> - Original woman image.</figcaption>
+        <img class="u-full-width" src="images/tilt_hist.png" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.15</b> - Original woman histogram.</figcaption>
+
+      </div>
+      <div class="six columns">
+        <img class="u-full-width" src="images/facade_straight.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.8</b> - Straightened facade image.</figcaption>
+        <img class="u-full-width" src="images/straight_facade_hist.png" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.9</b> - Straightened facade historgram.</figcaption>
+        <img class="u-full-width" src="images/skyline_straight.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.12</b> - Straightened skyline image.</figcaption>
+        <img class="u-full-width" src="images/straightened_skyline_hist.png" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.13</b> - Straightened skyline historgram.</figcaption>
+        <img class="u-full-width" src="images/tilt_straight.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.16</b> - Straightened woman image that failed as the program 
+          thought sideways was vertical because there was no differentiation between horizontal and vertical orientations.</figcaption>
+        <img class="u-full-width" src="images/tilt_straight_hist.png" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.17</b> - Straightened woman histogram.</figcaption>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Image "Sharpening"</h4>
+        <p>
+          Image "sharpening" was implemented by taking an image, subtracting a Gaussian blur from the image, and then adding 
+          the subtraction back into the original image to highlight the high frequencies.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="four columns">
+        <img class="u-full-width" src="images/exblur_taj.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.18</b> - Original blurry image.</figcaption>
+        <img class="u-full-width" src="images/exblur_mandelbrot.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.21</b> - Original blurry image.</figcaption>
+      </div>
+      <div class="four columns">
+        <img class="u-full-width" src="images/sharpen_taj.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.19</b> - High frequency mask.</figcaption>
+        <img class="u-full-width" src="images/sharpen_mandel.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.22</b> - High frequency mask.</figcaption>
+      </div>
+      <div class="four columns">
+        <img class="u-full-width" src="images/exsharp_exblur_taj.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.20</b> - Resulting "sharper" image.</figcaption>
+        <img class="u-full-width" src="images/exsharp_exblur_mandelbrot.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.23</b> - Resulting "sharper" image.</figcaption>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Hybrid Images</h4>
+        <p>
+          Hybrid images were created by taking the high frequencies of one image (obtained by subtracting the Gaussian blur 
+          of an image from the original) and combining it with the low frequencies of another image. The resulting image 
+          will look one way from close up and another way from far away based on the frequencies in the image.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="four columns">
+        <img class="u-full-width" src="images/derek_freq.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.24</b> - Frequencies of original Derek image.</figcaption>
+        <img class="u-full-width" src="images/lowpass_freq.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.27</b> - Frequencies of lowpass filtered nutmeg the cat.</figcaption>
+        <img class="u-full-width" src="images/apple_core.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.30</b> - Hybrid image of an apple and it's core.</figcaption>
+      </div>
+      <div class="four columns">
+        <img class="u-full-width" src="images/cat_freq.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.25</b> - Frequencies of original nutmeg the cat image.</figcaption>
+        <img class="u-full-width" src="images/hybrid_freq.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.28</b> - Frequencies of final hybrid image.</figcaption>
+        <img class="u-full-width" src="images/einstein_tree.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.31</b> - Hybrid image of Einstein and a tree.</figcaption>
+      </div>
+      <div class="four columns">
+        <img class="u-full-width" src="images/highpass_freq.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.26</b> - Frequenices of highpass filtered Derek.</figcaption>
+        <img class="u-full-width" src="images/catDerek.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.29</b> - Resulting hybrid image.</figcaption>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Gaussian and Laplacian Stacks</h4>
+        <p>
+          Gaussian and Laplacian stack are a way of storing different amounts of Gaussian blurring or Laplacian sharpening. Each 
+          layer of the Laplacian stack contained a further subtracted Gaussian to obtain a higher and higher frequency image.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <img class="u-full-width" src="images/lincoln_gauss1.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.31</b> - Level 1 of the Gaussian stack.</figcaption>
+        <img class="u-full-width" src="images/lincoln_laplace1.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.35</b> - Level 1 of the Laplacian stack.</figcaption>
+        <img class="u-full-width" src="images/tree_gauss1.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.39</b> - Level 1 of the Gaussian stack for my Einstein tree image.</figcaption>
+        <img class="u-full-width" src="images/tree_laplace1.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.43</b> - Level 1 of the Laplacian stack for my Einstein tree image.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/lincoln_gauss2.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.32</b> - Level 2 of the Gaussian stack.</figcaption>
+        <img class="u-full-width" src="images/lincoln_laplace2.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.36</b> - Level 2 of the Laplacian stack.</figcaption>
+        <img class="u-full-width" src="images/tree_gauss2.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.40</b> - Level 2 of the Gaussian stack for my Einstein tree image.</figcaption>
+        <img class="u-full-width" src="images/tree_laplace2.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.44</b> - Level 2 of the Laplacian stack for my Einstein tree image.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/lincoln_gauss3.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.33</b> - Level 3 of the Gaussian stack.</figcaption>
+        <img class="u-full-width" src="images/lincoln_laplace3.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.37</b> - Level 3 of the Laplacian stack.</figcaption>
+        <img class="u-full-width" src="images/tree_gauss3.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.41</b> - Level 3 of the Gaussian stack for my Einstein tree image.</figcaption>
+        <img class="u-full-width" src="images/tree_laplace3.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.45</b> - Level 3 of the Laplacian stack for my Einstein tree image.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/lincoln_gauss4.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.34</b> - Level 4 of the Gaussian stack.</figcaption>
+        <img class="u-full-width" src="images/lincoln_laplace4.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.38</b> - Level 4 of the Laplacian stack.</figcaption>
+        <img class="u-full-width" src="images/tree_gauss4.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.42</b> - Level 4 of the Gaussian stack for my Einstein tree image.</figcaption>
+        <img class="u-full-width" src="images/tree_laplace4.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.46</b> - Level 4 of the Laplacian stack for my Einstein tree image.</figcaption>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10%">
+      <div class="twelve columns">
+        <h4>Multi-resolution blending</h4>
+        <p>
+          Multi-resolution blending was implemented by breaking down the two images to be blended into Laplacian stacks. The step 
+          function for each layer also had to be blended using a Gaussian blur for each subsequent layer. Once each layer had 
+          the combination of each Laplacian, they were summed back to get a blended image.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <img class="u-full-width" src="images/blended_level1.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.47</b> - First Laplacian level blended.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/blended_level2.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.48</b> - Second Laplacian level blended.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/blended_level3.jpg" alt="doorway">
+        <figcaption style="text-align: center"><b>Fig.49</b> - Third Laplacian level blended.</figcaption>
+      </div>
+      <div class="three columns">
+        <img class="u-full-width" src="images/blended_orange_apple.jpg" alt="cameraman">
+        <figcaption style="text-align: center"><b>Fig.50</b> - Final grayscale result of blending two images.</figcaption>
+      </div>
+    </div>
+
+
+
+  </div>
+  
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
